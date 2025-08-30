@@ -40,7 +40,7 @@ jobs:
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        username: yotshiba
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
     - name: Build and test Docker services
@@ -52,10 +52,10 @@ jobs:
 
     - name: Tag and push FLEARN backend image
       run: |
-        docker tag flearn-back-flearn-backend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/flearn-backend:latest
-        docker tag flearn-back-flearn-backend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/flearn-backend:${{ github.sha }}
-        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/flearn-backend:latest
-        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/flearn-backend:${{ github.sha }}
+        docker tag flearn-back-flearn-backend:latest yotshiba/flearn-backend:latest
+        docker tag flearn-back-flearn-backend:latest yotshiba/flearn-backend:${{ github.sha }}
+        docker push yotshiba/flearn-backend:latest
+        docker push yotshiba/flearn-backend:${{ github.sha }}
 
     - name: Cleanup
       if: always()
