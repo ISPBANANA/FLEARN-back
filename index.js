@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const { apiKeyAuth, optionalApiKeyAuth, rateLimitByApiKey } = require('./middleware/auth');
+const externalApiService = require('./services/externalApi');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -46,6 +48,51 @@ app.get('/health', (req, res) => {
         uptime: process.uptime(),
         timestamp: new Date().toISOString()
     });
+});
+
+// Public API endpoints (no authentication required)
+app.get('/api/public/info', (req, res) => {
+    res.json({
+        message: 'This is a public endpoint',
+        version: '1.0.0',
+        features: ['authentication', 'user management', 'learning platform']
+    });
+});
+
+// Protected API endpoints (require API key)
+app.get('/api/protected/users', apiKeyAuth, (req, res) => {
+    res.json({
+        message: 'This is a protected endpoint',
+        users: ['user1', 'user2', 'user3'],
+        requestedBy: 'authenticated_user'
+    });
+});
+
+// Rate-limited endpoint
+app.get('/api/limited/data', rateLimitByApiKey(10), (req, res) => {
+    res.json({
+        message: 'This endpoint is rate-limited to 10 requests per minute',
+        data: { timestamp: new Date().toISOString() }
+    });
+});
+
+// Example external API integration
+app.post('/api/ai/generate', apiKeyAuth, async (req, res) => {
+    try {
+        const { prompt } = req.body;
+        
+        if (!prompt) {
+            return res.status(400).json({ error: 'Prompt is required' });
+        }
+
+        const result = await externalApiService.generateText(prompt);
+        res.json({ result });
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'Failed to generate text',
+            message: error.message 
+        });
+    }
 });
 
 // Connect to MongoDB
