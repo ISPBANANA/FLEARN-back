@@ -1,4 +1,26 @@
 services:
+  # FLEARN Backend API
+  flearn-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flearn_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${PORT}
+      POSTGRES_HOST: postgres
+      MONGO_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_INITDB_DATABASE}?authSource=admin
+    ports:
+      - "${PORT}:8099"
+    depends_on:
+      - postgres
+      - mongodb
+    networks:
+      - flearn_network
+
   # PostgreSQL Database
   postgres:
     image: postgres:15
